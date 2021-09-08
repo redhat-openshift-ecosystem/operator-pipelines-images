@@ -167,7 +167,9 @@ def get_repo_and_org_from_github_url(git_repo_url: str) -> (str, str):
     if git_repo_url.startswith("git@github.com:") and git_repo_url.endswith(".git"):
         path = git_repo_url.removeprefix("git@github.com:").removesuffix(".git")
     # https path
-    elif git_repo_url.startswith("https://github.com/") and git_repo_url.endswith(".git"):
+    elif git_repo_url.startswith("https://github.com/") and git_repo_url.endswith(
+        ".git"
+    ):
         path = git_repo_url.removeprefix("https://github.com/").removesuffix(".git")
     else:
         raise ValueError(wrong_path_err)

@@ -114,8 +114,10 @@ def test_ocp_version_info(mock_indices: MagicMock, bundle: Bundle) -> None:
 
 def test_get_repo_and_org_from_github_url():
     # test http and ssh
-    for url in ["git@github.com:redhat-openshift-ecosystem/operator-pipelines.git",
-                "https://github.com/redhat-openshift-ecosystem/operator-pipelines.git"]:
+    for url in [
+        "git@github.com:redhat-openshift-ecosystem/operator-pipelines.git",
+        "https://github.com/redhat-openshift-ecosystem/operator-pipelines.git",
+    ]:
         org, repo = operatorcert.get_repo_and_org_from_github_url(url)
         assert org == "redhat-openshift-ecosystem"
         assert repo == "operator-pipelines"
