@@ -16,8 +16,7 @@ def setup_argparser() -> argparse.ArgumentParser:
         default="redhat-openshift-ecosystem/operator-pipelines-test",
     )
     parser.add_argument("--git-username", help="Username of account which submitted the bundle")
-    parser.add_argument("--contacts-file", help="File with the list of"
-                                                " users allowed to submit bundle")
+    parser.add_argument("--contacts", help="List of users allowed to submit bundle", nargs="+")
     parser.add_argument("--verbose", action="store_true", help="Verbose output")
 
     return parser
@@ -38,7 +37,7 @@ def main() -> None:
     bundle_name, bundle_version = parse_pr_title(args.pr_title)
 
     # Validate the Github user which created the PR
-    validate_user(args.git_username, args.contacts_file)
+    validate_user(args.git_username, args.contacts)
 
     # Verify, that there is no other PR opened for this Bundle
     repos = args.available_repositories.split(",")

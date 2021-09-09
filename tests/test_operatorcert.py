@@ -293,19 +293,12 @@ def test_verify_pr_uniqueness(mock_get: MagicMock):
 
 
 def test_validate_user():
-    contact_file_content = """
-some_user
-some_other_user
-"""
+    contacts = ["some_user", "some_other_user"]
 
-    mock_open = mock.mock_open(read_data=contact_file_content)
-
-    with mock.patch("builtins.open", mock_open):
-        operatorcert.validate_user("some_user", "somefile")
+    operatorcert.validate_user("some_user", contacts)
 
     with pytest.raises(Exception):
-        with mock.patch("builtins.open", mock_open):
-            operatorcert.validate_user("one_without_permissions", "somefile")
+        operatorcert.validate_user("one_without_permissions", contacts)
 
 
 @patch("operatorcert.pyxis.get")

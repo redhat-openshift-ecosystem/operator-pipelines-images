@@ -270,10 +270,7 @@ def parse_pr_title(pr_title: str) -> (str, str):
     return bundle_name, bundle_version
 
 
-def validate_user(git_username: str, contacts_file: str):
-    with open(contacts_file, "r") as file:
-        contacts = file.read().splitlines()
-
+def validate_user(git_username: str, contacts: List[str]):
     if git_username not in contacts:
         raise Exception(f"User {git_username} doesn't have permissions to submit the bundle.")
     else:
