@@ -15,8 +15,12 @@ def setup_argparser() -> argparse.ArgumentParser:
         "with potentially duplicate PRs",
         default="redhat-openshift-ecosystem/operator-pipelines-test",
     )
-    parser.add_argument("--git-username", help="Username of account which submitted the bundle")
-    parser.add_argument("--contacts", help="List of users allowed to submit bundle", nargs="+")
+    parser.add_argument(
+        "--git-username", help="Username of account which submitted the bundle"
+    )
+    parser.add_argument(
+        "--contacts", help="List of users allowed to submit bundle", nargs="+"
+    )
     parser.add_argument("--verbose", action="store_true", help="Verbose output")
 
     return parser
