@@ -24,10 +24,14 @@ def setup_argparser() -> Any:
         help="Base URL for Pyxis container metadata API",
     )
     parser.add_argument(
-        "--isv-pid", help="isv_pid of the certification project from Red Hat Connect", required=True
+        "--isv-pid",
+        help="isv_pid of the certification project from Red Hat Connect",
+        required=True,
     )
     parser.add_argument(
-        "--repo-published", help="is the ContainerImage repository published?", required=True
+        "--repo-published",
+        help="is the ContainerImage repository published?",
+        required=True,
     )
     parser.add_argument(
         "--registry", help="Certification Project Registry", required=True
@@ -35,18 +39,25 @@ def setup_argparser() -> Any:
     # TODO
     parser.add_argument("--repository", help="", required=True)
 
-    parser.add_argument("--certified", help="Is the ContainerImage certified?", required=True)
-    parser.add_argument("--docker-image-digest", help="Container Image digest of related Imagestream", required=True)
+    parser.add_argument(
+        "--certified", help="Is the ContainerImage certified?", required=True
+    )
+    parser.add_argument(
+        "--docker-image-digest",
+        help="Container Image digest of related Imagestream",
+        required=True,
+    )
     parser.add_argument("--verbose", action="store_true", help="Verbose output")
     return parser
 
 
 def check_if_image_already_exists(args) -> bool:
     check_url = urljoin(
-        args.pyxis_url, f"v1/images?page_size=1&"
-                        f"filter="
-                        f"isv_pid=={args.isv_pid};"
-                        f"docker_image_digest=={args.docker_image_digest}"
+        args.pyxis_url,
+        f"v1/images?page_size=1&"
+        f"filter="
+        f"isv_pid=={args.isv_pid};"
+        f"docker_image_digest=={args.docker_image_digest}",
     )
 
     # Get the list of the ContainerImages with given parameters
@@ -74,11 +85,12 @@ def check_if_image_already_exists(args) -> bool:
 
 def are_all_deleted(args, total_images):
     get_deleted_url = urljoin(
-        args.pyxis_url, f"v1/images?page_size=1&"
-                        f"filter="
-                        f"isv_pid=={args.isv_pid};"
-                        f"docker_image_digest=={args.docker_image_digest};"
-                        f"deleted==true"
+        args.pyxis_url,
+        f"v1/images?page_size=1&"
+        f"filter="
+        f"isv_pid=={args.isv_pid};"
+        f"docker_image_digest=={args.docker_image_digest};"
+        f"deleted==true",
     )
     rsp = pyxis.get(get_deleted_url)
     rsp.raise_for_status()
@@ -92,18 +104,18 @@ def are_all_deleted(args, total_images):
 def create_container_image(args):
     LOGGER.info("Creating new container image")
 
-    upload_url = urljoin(
-        args.pyxis_url, f"v1/images"
-    )
+    upload_url = urljoin(args.pyxis_url, f"v1/images")
     container_image_payload = {
         "isv_pid": args.isv_pid,
-        "repositories": [{
-            "published": True,
-            "registry": args.registry,
-            "repository": args.repository,
-        }],
+        "repositories": [
+            {
+                "published": True,
+                "registry": args.registry,
+                "repository": args.repository,
+            }
+        ],
         "certified": True,
-        "docker_image_digest": args.docker_image_digest
+        "docker_image_digest": args.docker_image_digest,
     }
 
     return pyxis.post(upload_url, container_image_payload)

@@ -1,11 +1,16 @@
 from unittest.mock import patch, MagicMock
 
-from operatorcert.entrypoints.create_container_image import check_if_image_already_exists, create_container_image
+from operatorcert.entrypoints.create_container_image import (
+    check_if_image_already_exists,
+    create_container_image,
+)
 
 
 @patch("operatorcert.entrypoints.create_container_image.pyxis.get")
 @patch("operatorcert.entrypoints.create_container_image.are_all_deleted")
-def test_check_if_image_already_exists(mock_check_deleted: MagicMock, mock_get: MagicMock):
+def test_check_if_image_already_exists(
+    mock_check_deleted: MagicMock, mock_get: MagicMock
+):
     # Arrange
     mock_check_deleted.return_value = True
     mock_rsp = MagicMock()
@@ -17,8 +22,7 @@ def test_check_if_image_already_exists(mock_check_deleted: MagicMock, mock_get: 
     args.docker_image_digest = "some_digest"
 
     # Image already exist, and it's not deleted
-    mock_rsp.json.return_value = {"data": [{}],
-                                  "total": 0}
+    mock_rsp.json.return_value = {"data": [{}], "total": 0}
 
     # Act
     exists = check_if_image_already_exists(args)
@@ -30,8 +34,7 @@ def test_check_if_image_already_exists(mock_check_deleted: MagicMock, mock_get: 
     )
 
     # Image already exist, and it's deleted
-    mock_rsp.json.return_value = {"data": [{"deleted": True}],
-                                  "total": 0}
+    mock_rsp.json.return_value = {"data": [{"deleted": True}], "total": 0}
 
     # Act
     exists = check_if_image_already_exists(args)
@@ -39,8 +42,7 @@ def test_check_if_image_already_exists(mock_check_deleted: MagicMock, mock_get: 
     assert not exists
 
     # Image doesn't exist
-    mock_rsp.json.return_value = {"data": [],
-                                  "total": 0}
+    mock_rsp.json.return_value = {"data": [], "total": 0}
 
     # Act
     exists = check_if_image_already_exists(args)
@@ -65,8 +67,18 @@ def test_create_container_image(mock_post: MagicMock):
 
     # Assert
     assert rsp == "ok"
-    mock_post.assert_called_with("https://catalog.redhat.com/api/containers/v1/images",
-                                 {'isv_pid': 'some_isv_pid',
-                                  'repositories': [
-                                      {'published': True, 'registry': 'some_registry', 'repository': 'some_repo'}],
-                                  'certified': True, 'docker_image_digest': 'some_digest'})
+    mock_post.assert_called_with(
+        "https://catalog.redhat.com/api/containers/v1/images",
+        {
+            "isv_pid": "some_isv_pid",
+            "repositories": [
+                {
+                    "published": True,
+                    "registry": "some_registry",
+                    "repository": "some_repo",
+                }
+            ],
+            "certified": True,
+            "docker_image_digest": "some_digest",
+        },
+    )
