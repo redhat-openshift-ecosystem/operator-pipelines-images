@@ -36,9 +36,9 @@ def setup_argparser() -> Any:
     parser.add_argument(
         "--registry", help="Certification Project Registry", required=True
     )
-    # TODO
-    parser.add_argument("--repository", help="", required=True)
-
+    parser.add_argument("--repository",
+                        help="Repository name assigned to certification project from Red Hat Connect",
+                        required=True)
     parser.add_argument(
         "--certified", help="Is the ContainerImage certified?", required=True
     )
@@ -79,7 +79,6 @@ def check_if_image_already_exists(args) -> bool:
     if query_results[0].get("deleted", False):
         return not are_all_deleted(args, total_images)
     else:
-        LOGGER.info("Image with given docker_image_digest and isv_pid already exists")
         return True
 
 
@@ -134,7 +133,11 @@ def main():
     exists = check_if_image_already_exists(args)
 
     if not exists:
+        LOGGER.info("Image with given docker_image_digest and isv_pid doesn't exists yet")
         create_container_image(args)
+    else:
+        LOGGER.info("Image with given docker_image_digest and isv_pid already exists."
+                    "Skipping the image creation.")
 
 
 if __name__ == "__main__":
