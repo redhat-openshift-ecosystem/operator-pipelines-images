@@ -60,7 +60,7 @@ def check_if_image_already_exists(args) -> bool:
         f"filter="
         f"isv_pid=={args.isv_pid};"
         f"docker_image_digest=={args.docker_image_digest};"
-        f"not(deleted==true)"
+        f"not(deleted==true)",
     )
 
     # Get the list of the ContainerImages with given parameters

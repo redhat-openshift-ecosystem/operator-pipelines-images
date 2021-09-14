@@ -7,9 +7,7 @@ from operatorcert.entrypoints.create_container_image import (
 
 
 @patch("operatorcert.entrypoints.create_container_image.pyxis.get")
-def test_check_if_image_already_exists(
-    mock_get: MagicMock
-):
+def test_check_if_image_already_exists(mock_get: MagicMock):
     # Arrange
     mock_rsp = MagicMock()
     mock_get.return_value = mock_rsp
