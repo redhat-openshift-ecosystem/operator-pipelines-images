@@ -20,7 +20,7 @@ def setup_argparser() -> Any:
 
     parser.add_argument(
         "--pyxis-url",
-        default="https://catalog.redhat.com/api/containers/",
+        default="https://pyxis.engineering.redhat.com",
         help="Base URL for Pyxis container metadata API",
     )
     parser.add_argument(
@@ -59,7 +59,8 @@ def check_if_image_already_exists(args) -> bool:
         f"v1/images?page_size=1&"
         f"filter="
         f"isv_pid=={args.isv_pid};"
-        f"docker_image_digest=={args.docker_image_digest}",
+        f"docker_image_digest=={args.docker_image_digest};"
+        f"not(deleted==true)"
     )
 
     # Get the list of the ContainerImages with given parameters
@@ -67,38 +68,17 @@ def check_if_image_already_exists(args) -> bool:
     rsp.raise_for_status()
 
     query_results = rsp.json()["data"]
-    total_images = rsp.json()["total"]
 
     if len(query_results) == 0:
+        LOGGER.info(
+            "Image with given docker_image_digest and isv_pid doesn't exists yet"
+        )
         return False
 
-    # Test, if the images that we got are all deleted.
-    # To do that, we firstly check if record in response is deleted.
-    # If it is not, image already exists. If it is, then we query
-    # all the deleted images with given parameters,
-    # and compare amount with the original amount.
-    # That's most efficient method, since we cannot use `$exists` in Pyxis query.
-    if query_results[0].get("deleted", False):
-        return not are_all_deleted(args, total_images)
-    else:
-        return True
-
-
-def are_all_deleted(args, total_images):
-    get_deleted_url = urljoin(
-        args.pyxis_url,
-        f"v1/images?page_size=1&"
-        f"filter="
-        f"isv_pid=={args.isv_pid};"
-        f"docker_image_digest=={args.docker_image_digest};"
-        f"deleted==true",
+    LOGGER.info(
+        "Image with given docker_image_digest and isv_pid already exists."
+        "Skipping the image creation."
     )
-    rsp = pyxis.get(get_deleted_url)
-    rsp.raise_for_status()
-    total_deleted = rsp.json()["total"]
-
-    if total_deleted != total_images:
-        return False
     return True
 
 
@@ -135,15 +115,7 @@ def main():
     exists = check_if_image_already_exists(args)
 
     if not exists:
-        LOGGER.info(
-            "Image with given docker_image_digest and isv_pid doesn't exists yet"
-        )
         create_container_image(args)
-    else:
-        LOGGER.info(
-            "Image with given docker_image_digest and isv_pid already exists."
-            "Skipping the image creation."
-        )
 
 
 if __name__ == "__main__":

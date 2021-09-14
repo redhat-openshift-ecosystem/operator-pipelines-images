@@ -7,12 +7,10 @@ from operatorcert.entrypoints.create_container_image import (
 
 
 @patch("operatorcert.entrypoints.create_container_image.pyxis.get")
-@patch("operatorcert.entrypoints.create_container_image.are_all_deleted")
 def test_check_if_image_already_exists(
-    mock_check_deleted: MagicMock, mock_get: MagicMock
+    mock_get: MagicMock
 ):
     # Arrange
-    mock_check_deleted.return_value = True
     mock_rsp = MagicMock()
     mock_get.return_value = mock_rsp
 
@@ -21,8 +19,8 @@ def test_check_if_image_already_exists(
     args.isv_pid = "some_isv_pid"
     args.docker_image_digest = "some_digest"
 
-    # Image already exist, and it's not deleted
-    mock_rsp.json.return_value = {"data": [{}], "total": 0}
+    # Image already exist
+    mock_rsp.json.return_value = {"data": [{}]}
 
     # Act
     exists = check_if_image_already_exists(args)
@@ -30,19 +28,11 @@ def test_check_if_image_already_exists(
     assert exists
     mock_get.assert_called_with(
         "https://catalog.redhat.com/api/containers/v1/images?page_size=1&filter=isv_pid==some_isv_pid"
-        ";docker_image_digest==some_digest"
+        ";docker_image_digest==some_digest;not(deleted==true)"
     )
 
-    # Image already exist, and it's deleted
-    mock_rsp.json.return_value = {"data": [{"deleted": True}], "total": 0}
-
-    # Act
-    exists = check_if_image_already_exists(args)
-    # Assert
-    assert not exists
-
     # Image doesn't exist
-    mock_rsp.json.return_value = {"data": [], "total": 0}
+    mock_rsp.json.return_value = {"data": []}
 
     # Act
     exists = check_if_image_already_exists(args)
