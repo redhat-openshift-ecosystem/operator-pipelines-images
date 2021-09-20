@@ -1,3 +1,4 @@
+from datetime import datetime
 from unittest.mock import patch, MagicMock
 
 from operatorcert.entrypoints.create_container_image import (
@@ -39,9 +40,17 @@ def test_check_if_image_already_exists(mock_get: MagicMock):
 
 
 @patch("operatorcert.entrypoints.create_container_image.pyxis.post")
-def test_create_container_image(mock_post: MagicMock):
+@patch("operatorcert.entrypoints.create_container_image.prepare_parsed_data")
+@patch("operatorcert.entrypoints.create_container_image.datetime")
+def test_create_container_image(
+    mock_datetime: MagicMock, mock_prepare_parsed: MagicMock, mock_post: MagicMock
+):
     # Arrange
     mock_post.return_value = "ok"
+    mock_prepare_parsed.return_value = {"architecture": "ok"}
+
+    # mock date
+    mock_datetime.now = MagicMock(return_value=datetime(1970, 10, 10, 10, 10, 10))
 
     args = MagicMock()
     args.pyxis_url = "https://catalog.redhat.com/api/containers/"
@@ -49,6 +58,7 @@ def test_create_container_image(mock_post: MagicMock):
     args.registry = "some_registry"
     args.repository = "some_repo"
     args.docker_image_digest = "some_digest"
+    args.bundle_version = "some_version"
 
     # Act
     rsp = create_container_image(args)
@@ -64,9 +74,19 @@ def test_create_container_image(mock_post: MagicMock):
                     "published": True,
                     "registry": "some_registry",
                     "repository": "some_repo",
+                    "push_date": "1970-10-10T10:10:10.000000+00:00",
+                    "tags": [
+                        {
+                            "added_date": "1970-10-10T10:10:10.000000+00:00",
+                            "name": "some_version",
+                        }
+                    ],
                 }
             ],
             "certified": True,
             "docker_image_digest": "some_digest",
+            "architecture": "ok",
+            "parsed_data": {"architecture": "ok"},
+            "sum_layer_size_bytes": 1,
         },
     )
