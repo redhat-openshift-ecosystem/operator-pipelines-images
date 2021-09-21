@@ -131,7 +131,9 @@ def create_container_image(args):
                 "tags": [
                     {
                         "added_date": date_now,
-                        "name": args.bundle_version,
+                        # suffix -1 is added to indicate,
+                        # that it's non- floating tag
+                        "name": args.bundle_version + "-1",
                     },
                 ],
             }
@@ -141,7 +143,6 @@ def create_container_image(args):
         "architecture": parsed_data["architecture"],
         "parsed_data": parsed_data,
         "sum_layer_size_bytes": int(args.image_size),
-        # "freshness_grades": "X",
     }
 
     if args.is_latest == "true":

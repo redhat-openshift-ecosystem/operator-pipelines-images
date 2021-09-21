@@ -81,7 +81,7 @@ def test_create_container_image(
                     "tags": [
                         {
                             "added_date": "1970-10-10T10:10:10.000000+00:00",
-                            "name": "some_version",
+                            "name": "some_version-1",
                         }
                     ],
                 }
