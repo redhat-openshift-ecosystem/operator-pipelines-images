@@ -1,9 +1,12 @@
+import json
 from datetime import datetime
+from unittest import mock
 from unittest.mock import patch, MagicMock
 
 from operatorcert.entrypoints.create_container_image import (
     check_if_image_already_exists,
     create_container_image,
+    prepare_parsed_data,
 )
 
 
@@ -90,3 +93,28 @@ def test_create_container_image(
             "sum_layer_size_bytes": 1,
         },
     )
+
+
+def test_prepare_parsed_data():
+    # Arrange
+    file_content = json.dumps(
+        {
+            "DockerVersion": "1",
+            "Layers": ["1", "2"],
+            "Architecture": "test",
+            "Env": ["a=test"],
+        }
+    )
+    mock_open = mock.mock_open(read_data=file_content)
+
+    # Act
+    with mock.patch("builtins.open", mock_open):
+        parsed_data = prepare_parsed_data("nonexisting_file.json")
+
+    # Assert
+    assert parsed_data == {
+        "architecture": "test",
+        "docker_version": "1",
+        "env_variables": ["a=test"],
+        "layers": ["1", "2"],
+    }

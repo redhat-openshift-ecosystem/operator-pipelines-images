@@ -104,7 +104,7 @@ def prepare_parsed_data(skopeo_result_file: str) -> Dict[str, Any]:
         skopeo_result = json.load(json_file)
 
         parsed_data = {
-            "docker_version": skopeo_result.get("docker_version", ""),
+            "docker_version": skopeo_result.get("DockerVersion", ""),
             "layers": skopeo_result.get("Layers", []),
             "architecture": skopeo_result.get("Architecture", ""),
             "env_variables": skopeo_result.get("Env", []),
