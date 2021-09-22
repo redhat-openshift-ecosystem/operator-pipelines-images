@@ -4,6 +4,7 @@ Script for updating the cert project related data
 import argparse
 import logging
 from typing import Any
+from datetime import datetime, timezone
 from urllib.parse import urljoin
 
 from operatorcert import pyxis
@@ -36,11 +37,6 @@ def setup_argparser() -> argparse.ArgumentParser:
         required=True,
         help="certProject data field certification_status value",
     )
-    parser.add_argument(
-        "--certification-date",
-        required=True,
-        help="certProject data field certification_date value",
-    )
 
     parser.add_argument("--verbose", action="store_true", help="Verbose output")
 
@@ -51,7 +47,7 @@ def update_cert_project_related_data(args: Any) -> None:
 
     payload = {
         "certification_status": args.certification_status,
-        "certification_date": args.certification_date,
+        "certification_date": datetime.now(timezone.utc),
     }
     rsp = pyxis.patch(
         urljoin(
