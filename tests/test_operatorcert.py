@@ -336,7 +336,6 @@ def test_download_test_results(mock_get: MagicMock):
                 "_id": "1234",
                 "results": {"a": "ok"},
                 "passed": True,
-                "pull_request": {},
                 "test_library": {},
             }
         ]
