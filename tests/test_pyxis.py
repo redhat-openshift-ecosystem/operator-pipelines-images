@@ -74,8 +74,8 @@ def test_put(mock_session: MagicMock) -> None:
 def test_put_error(mock_session: MagicMock) -> None:
     response = Response()
     response.status_code = 400
-    mock_session.return_value.put.return_value.raise_for_status.side_effect = (
-        HTTPError(response=response)
+    mock_session.return_value.put.return_value.raise_for_status.side_effect = HTTPError(
+        response=response
     )
     with pytest.raises(HTTPError):
         pyxis.put("https://foo.com/v1/bar", {})

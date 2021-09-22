@@ -177,18 +177,23 @@ def remove_latest_from_previous_image(pyxis_url: str, isv_pid: str):
         LOGGER.info("It's the first image for this cert project")
         return
 
-    LOGGER.info("Found previous image, removing LATEST tag")
+    LOGGER.info("Found previous image")
 
+    latest_exists = False
     prev_image = query_results[0]
     for repo_no, repo in enumerate(prev_image["repositories"]):
         for tag_no, tag in enumerate(repo["tags"]):
             if tag["name"] == "latest":
-                del prev_image["repositories"][repo_no]["tags"][tag_no]
+                latest_exists = True
                 break
 
-    put_image_url = urljoin(pyxis_url, f"v1/images/id/{prev_image['_id']}")
+    if latest_exists:
+        LOGGER.info("Removing LATEST tag")
+        del prev_image["repositories"][repo_no]["tags"][tag_no]
 
-    pyxis.put(put_image_url, prev_image)
+        put_image_url = urljoin(pyxis_url, f"v1/images/id/{prev_image['_id']}")
+
+        pyxis.put(put_image_url, prev_image)
 
 
 def main():
