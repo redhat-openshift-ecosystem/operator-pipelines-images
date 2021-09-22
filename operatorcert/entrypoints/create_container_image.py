@@ -1,4 +1,5 @@
 import argparse
+from urllib.parse import quote
 from datetime import datetime
 import json
 import logging
@@ -71,14 +72,14 @@ def setup_argparser() -> Any:
 
 
 def check_if_image_already_exists(args) -> bool:
-    check_url = urljoin(
-        args.pyxis_url,
-        f"v1/images?page_size=1&"
-        f"filter="
-        f"isv_pid=={args.isv_pid};"
-        f"docker_image_digest=={args.docker_image_digest};"
-        f"not(deleted==true)",
+    # quote is needed to urlparse the quotation marks
+    filter_str = quote(
+        f'isv_pid=="{args.isv_pid}";'
+        f'docker_image_digest=="{args.docker_image_digest}";'
+        f"not(deleted==true)"
     )
+
+    check_url = urljoin(args.pyxis_url, f"v1/images?page_size=1&filter={filter_str}")
 
     # Get the list of the ContainerImages with given parameters
     rsp = pyxis.get(check_url)
@@ -146,7 +147,6 @@ def create_container_image(args):
     }
 
     if args.is_latest == "true":
-        # TODO: remove latest from previous image (if it exists)
         container_image_payload["repositories"][0]["tags"].append(
             {
                 "added_date": date_now,
@@ -155,6 +155,40 @@ def create_container_image(args):
         )
 
     return pyxis.post(upload_url, container_image_payload)
+
+
+def remove_latest_from_previous_image(pyxis_url: str, isv_pid: str):
+    # quote is needed to urlparse the quotation marks
+    filter_str = quote(f'isv_pid=="{isv_pid}";' "not(deleted==true)")
+
+    # If there are multiple results, we only want the most recent one- we enforce it by sorting by creation_date
+    # and getting only the first result.
+    get_previous_image_url = urljoin(
+        pyxis_url,
+        f"v1/images?filter={filter_str}" f"&sort_by=creation_date[desc]&page_size=1",
+    )
+    # Get the list of the ContainerImages with given parameters
+    rsp = pyxis.get(get_previous_image_url)
+    rsp.raise_for_status()
+
+    query_results = rsp.json()["data"]
+
+    if len(query_results) == 0:
+        LOGGER.info("It's the first image for this cert project")
+        return
+
+    LOGGER.info("Found previous image, removing LATEST tag")
+
+    prev_image = query_results[0]
+    for repo_no, repo in enumerate(prev_image["repositories"]):
+        for tag_no, tag in enumerate(repo["tags"]):
+            if tag["name"] == "latest":
+                del prev_image["repositories"][repo_no]["tags"][tag_no]
+                break
+
+    put_image_url = urljoin(pyxis_url, f"v1/images/id/{prev_image['_id']}")
+
+    pyxis.put(put_image_url, prev_image)
 
 
 def main():
@@ -170,6 +204,8 @@ def main():
     exists = check_if_image_already_exists(args)
 
     if not exists:
+        if args.is_latest == "true":
+            remove_latest_from_previous_image(args.pyxis_url, args.isv_pid)
         create_container_image(args)
 
 
