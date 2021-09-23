@@ -3,7 +3,7 @@ from urllib.parse import quote
 from datetime import datetime
 import json
 import logging
-from typing import Any, Dict
+from typing import Any, Dict, List
 from urllib.parse import urljoin
 
 from operatorcert import pyxis
@@ -66,7 +66,10 @@ def setup_argparser() -> Any:
         required=True,
     )
     parser.add_argument(
-        "--image-size", help="sum of the size of image layers", required=True
+        "--podman-result",
+        help="File with result of `podman image inspect` running against image"
+        " represented by ContainerImage to be created",
+        required=True,
     )
     parser.add_argument("--is-latest", help="Is given version latest?", required=True)
     parser.add_argument("--verbose", action="store_true", help="Verbose output")
@@ -102,25 +105,24 @@ def check_if_image_already_exists(args) -> bool:
     return True
 
 
-def prepare_parsed_data(skopeo_result_file: str) -> Dict[str, Any]:
-    with open(skopeo_result_file) as json_file:
-        skopeo_result = json.load(json_file)
+def prepare_parsed_data(skopeo_result: Dict[str, Any]) -> Dict[str, Any]:
+    parsed_data = {
+        "docker_version": skopeo_result.get("DockerVersion", ""),
+        "layers": skopeo_result.get("Layers", []),
+        "architecture": skopeo_result.get("Architecture", ""),
+        "env_variables": skopeo_result.get("Env", []),
+    }
 
-        parsed_data = {
-            "docker_version": skopeo_result.get("DockerVersion", ""),
-            "layers": skopeo_result.get("Layers", []),
-            "architecture": skopeo_result.get("Architecture", ""),
-            "env_variables": skopeo_result.get("Env", []),
-        }
-
-        return parsed_data
+    return parsed_data
 
 
-def create_container_image(args):
+def create_container_image(
+    args, skopeo_result: Dict[str, Any], podman_result: List[Dict[str, Any]]
+):
     LOGGER.info("Creating new container image")
 
     date_now = datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f+00:00")
-    parsed_data = prepare_parsed_data(args.skopeo_result)
+    parsed_data = prepare_parsed_data(skopeo_result)
 
     upload_url = urljoin(args.pyxis_url, f"v1/images")
     container_image_payload = {
@@ -145,7 +147,7 @@ def create_container_image(args):
         "docker_image_digest": args.docker_image_digest,
         "architecture": parsed_data["architecture"],
         "parsed_data": parsed_data,
-        "sum_layer_size_bytes": int(args.image_size),
+        "sum_layer_size_bytes": int(podman_result[0]["Size"]),
     }
 
     if args.is_latest == "true":
@@ -208,12 +210,18 @@ def main():
     log_level = "DEBUG" if args.verbose else "INFO"
     setup_logger(log_level)
 
+    with open(args.skopeo_result) as json_file:
+        skopeo_result = json.load(json_file)
+
+    with open(args.podman_result) as json_file:
+        podman_result = json.load(json_file)
+
     exists = check_if_image_already_exists(args)
 
     if not exists:
         if args.is_latest == "true":
             remove_latest_from_previous_image(args.pyxis_url, args.isv_pid)
-        create_container_image(args)
+        create_container_image(args, skopeo_result, podman_result)
 
 
 if __name__ == "__main__":

@@ -64,7 +64,7 @@ def test_create_container_image(
     args.bundle_version = "some_version"
 
     # Act
-    rsp = create_container_image(args)
+    rsp = create_container_image(args, {}, [{"Size": 1}])
 
     # Assert
     assert rsp == "ok"
@@ -97,19 +97,15 @@ def test_create_container_image(
 
 def test_prepare_parsed_data():
     # Arrange
-    file_content = json.dumps(
-        {
-            "DockerVersion": "1",
-            "Layers": ["1", "2"],
-            "Architecture": "test",
-            "Env": ["a=test"],
-        }
-    )
-    mock_open = mock.mock_open(read_data=file_content)
+    file_content = {
+        "DockerVersion": "1",
+        "Layers": ["1", "2"],
+        "Architecture": "test",
+        "Env": ["a=test"],
+    }
 
     # Act
-    with mock.patch("builtins.open", mock_open):
-        parsed_data = prepare_parsed_data("nonexisting_file.json")
+    parsed_data = prepare_parsed_data(file_content)
 
     # Assert
     assert parsed_data == {
@@ -134,8 +130,7 @@ def test_remove_latest_from_previous_image(mock_put: MagicMock, mock_get: MagicM
             {
                 "_id": "1234",
                 "repositories": [
-                    {"tags": [{"name": "latest"}]},
-                    {"tags": [{"name": "some_other"}]},
+                    {"tags": [{"name": "latest"}, {"name": "some_other"}]},
                 ],
             }
         ]
@@ -147,6 +142,6 @@ def test_remove_latest_from_previous_image(mock_put: MagicMock, mock_get: MagicM
         "v1/images/id/1234",
         {
             "_id": "1234",
-            "repositories": [{"tags": []}, {"tags": [{"name": "some_other"}]}],
+            "repositories": [{"tags": [{"name": "some_other"}]}],
         },
     )
