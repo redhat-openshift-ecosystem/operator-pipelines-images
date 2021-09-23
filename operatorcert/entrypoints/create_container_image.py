@@ -19,7 +19,7 @@ def setup_argparser() -> Any:
     Returns:
         Any: Initialized argument parser
     """
-    parser = argparse.ArgumentParser(description="Bundle dockerfile generator.")
+    parser = argparse.ArgumentParser(description="ContainerImage resource creator.")
 
     parser.add_argument(
         "--pyxis-url",
@@ -37,7 +37,9 @@ def setup_argparser() -> Any:
         required=True,
     )
     parser.add_argument(
-        "--registry", help="Certification Project Registry", required=True
+        "--registry",
+        help="Certification Project Registry",
+        default="registry.connect.redhat.com",
     )
     parser.add_argument(
         "--repository",
@@ -89,7 +91,7 @@ def check_if_image_already_exists(args) -> bool:
 
     if len(query_results) == 0:
         LOGGER.info(
-            "Image with given docker_image_digest and isv_pid doesn't exists yet"
+            "Image with given docker_image_digest and isv_pid doesn't exist yet"
         )
         return False
 
