@@ -8,9 +8,7 @@ from operatorcert.entrypoints.update_cert_project_status import (
 
 
 @patch("operatorcert.entrypoints.update_cert_project_status.pyxis.patch")
-@patch(
-    "operatorcert.entrypoints.update_cert_project_status.store_results"
-)
+@patch("operatorcert.entrypoints.update_cert_project_status.store_results")
 def test_update_cert_project_status(
     mock_store: MagicMock,
     mock_patch: MagicMock,
