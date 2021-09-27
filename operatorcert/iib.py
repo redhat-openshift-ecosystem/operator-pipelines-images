@@ -25,7 +25,7 @@ def get_session(kerberos_auth=True) -> Any:
     return session
 
 
-def add_build(base_url: str, body: Dict[str, Any]) -> Any:
+def add_builds(base_url: str, body: Dict[str, Any]) -> Any:
     """
     Add IIB build
 
@@ -38,7 +38,7 @@ def add_build(base_url: str, body: Dict[str, Any]) -> Any:
     """
     session = get_session()
 
-    add_build_url = urljoin(base_url, f"api/v1/builds/add")
+    add_build_url = urljoin(base_url, f"api/v1/builds/add-rm-batch")
 
     resp = session.post(add_build_url, json=body)
 
@@ -52,13 +52,13 @@ def add_build(base_url: str, body: Dict[str, Any]) -> Any:
     return resp.json()
 
 
-def get_build(base_url: str, build_id: int) -> Any:
+def get_builds(base_url: str, batch_id: int) -> Any:
     """
-    Get IIB build
+    Get IIB build list based on batch id
 
     Args:
         base_url (str): Base URL of IIB API
-        build_id (int): Build identifier
+        batch_id (int): Batch identifier
 
     Returns:
         Any: Build API response
@@ -66,15 +66,16 @@ def get_build(base_url: str, build_id: int) -> Any:
 
     session = get_session(False)
 
-    add_build_url = urljoin(base_url, f"api/v1/builds/{build_id}")
+    add_build_url = urljoin(base_url, f"api/v1/builds")
 
-    resp = session.get(add_build_url)
+    resp = session.get(add_build_url, params={"batch": batch_id})
 
     try:
         resp.raise_for_status()
     except requests.HTTPError:
         LOGGER.exception(
-            f"IIB GET query failed with {add_build_url} - {resp.status_code} - {resp.text}"
+            f"IIB GET query failed with {add_build_url} and batch {batch_id} - "
+            f"{resp.status_code} - {resp.text}"
         )
         raise
     return resp.json()
