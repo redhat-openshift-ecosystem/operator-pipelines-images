@@ -34,6 +34,7 @@ def setup_argparser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--certification-status",
+        choices=("In Progress", "Published"),
         required=True,
         help="certProject data field certification_status value",
     )
@@ -43,7 +44,7 @@ def setup_argparser() -> argparse.ArgumentParser:
     return parser
 
 
-def update_cert_project_related_data(args: Any) -> None:
+def update_cert_project_certification_status(args: Any) -> None:
 
     payload = {
         "certification_status": args.certification_status,
@@ -73,7 +74,7 @@ def main() -> None:
         log_level = "DEBUG"
     logging.basicConfig(level=log_level)
 
-    update_cert_project_related_data(args)
+    update_cert_project_certification_status(args)
 
 
 if __name__ == "__main__":

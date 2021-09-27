@@ -2,14 +2,16 @@ from unittest.mock import patch, MagicMock
 
 import pytest
 
-from operatorcert.entrypoints.update_cert_project_data import (
-    update_cert_project_related_data,
+from operatorcert.entrypoints.update_cert_project_certification_status import (
+    update_cert_project_certification_status,
 )
 
 
-@patch("operatorcert.entrypoints.update_cert_project_data.pyxis.patch")
-@patch("operatorcert.entrypoints.update_cert_project_data.store_results")
-def test_update_cert_project_data(
+@patch("operatorcert.entrypoints.update_cert_project_certification_status.pyxis.patch")
+@patch(
+    "operatorcert.entrypoints.update_cert_project_certification_status.store_results"
+)
+def test_update_cert_project_certification_status(
     mock_store: MagicMock,
     mock_patch: MagicMock,
 ) -> None:
@@ -28,7 +30,7 @@ def test_update_cert_project_data(
     }
     mock_patch.return_value = mock_rsp
 
-    update_cert_project_related_data(args)
+    update_cert_project_certification_status(args)
     mock_store.assert_called_with(
         {
             "cert_project": {
