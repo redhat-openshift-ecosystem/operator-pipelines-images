@@ -35,6 +35,8 @@ setup(
             "open-pull-request=operatorcert.entrypoints.github_pr:main",
             "publish=operatorcert.entrypoints.publish:main",
             "index=operatorcert.entrypoints.index:main",
+            "hydra-checklist=operatorcert.entrypoints.hydra_checklist:main",
+            "create-container-image=operatorcert.entrypoints.create_container_image:main",
         ],
     },
 )
