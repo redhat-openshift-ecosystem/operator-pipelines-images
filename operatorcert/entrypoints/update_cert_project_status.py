@@ -44,7 +44,7 @@ def setup_argparser() -> argparse.ArgumentParser:
     return parser
 
 
-def update_cert_project_certification_status(args: Any) -> None:
+def update_cert_project_status(args: Any) -> None:
 
     payload = {
         "certification_status": args.certification_status,
@@ -74,7 +74,7 @@ def main() -> None:
         log_level = "DEBUG"
     logging.basicConfig(level=log_level)
 
-    update_cert_project_certification_status(args)
+    update_cert_project_status(args)
 
 
 if __name__ == "__main__":
