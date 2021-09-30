@@ -74,7 +74,7 @@ def set_client_keytab(keytab_file: str):
     Args:
         keytab_file (path): path to keytab file (default /etc/krb5.krb)
     """
-    if keytab_file:
+    if not keytab_file:
         return
     if not os.path.isfile(keytab_file):
         raise IOError("Keytab file %s does not exist", keytab_file)
