@@ -21,6 +21,7 @@ RUN dnf update -y && \
     dnf install -y \
     findutils \
     git \
+    gcc \
     jq \
     krb5-devel \
     krb5-workstation \
