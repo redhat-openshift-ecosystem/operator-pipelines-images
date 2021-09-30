@@ -25,6 +25,7 @@ RUN dnf update -y && \
     jq \
     krb5-devel \
     krb5-workstation \
+    yamllint \
     openssl-devel \
     pip \
     python3-devel && \
