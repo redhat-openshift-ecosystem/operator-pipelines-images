@@ -22,8 +22,8 @@ RUN dnf update -y && \
     findutils \
     git \
     jq \
-    krb5-workstation \
     krb5-devel \
+    krb5-workstation \
     openssl-devel \
     pip \
     python3-devel && \
