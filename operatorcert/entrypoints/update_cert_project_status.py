@@ -1,5 +1,5 @@
 """
-Script for updating the cert project related data
+Script for updating the cert project status
 """
 import argparse
 import logging
@@ -21,7 +21,7 @@ def setup_argparser() -> argparse.ArgumentParser:
         Any: Initialized argument parser
     """
     parser = argparse.ArgumentParser(
-        description="Get the Certification Project related data"
+        description="Get the Certification Project Status"
     )
     parser.add_argument(
         "--cert-project-id",
