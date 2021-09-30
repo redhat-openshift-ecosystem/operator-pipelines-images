@@ -20,9 +20,7 @@ def setup_argparser() -> argparse.ArgumentParser:
     Returns:
         Any: Initialized argument parser
     """
-    parser = argparse.ArgumentParser(
-        description="Get the Certification Project Status"
-    )
+    parser = argparse.ArgumentParser(description="Get the Certification Project Status")
     parser.add_argument(
         "--cert-project-id",
         help="Identifier of certification project from Red Hat Connect",
