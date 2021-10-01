@@ -149,7 +149,7 @@ def parse_indices(indices: List[str]) -> List[str]:
             # unable to split by :
             raise Exception(f"Unable to extract version from index {index}")
         else:
-            versions.append(split[0])
+            versions.append(split[1])
     return versions
 
 
